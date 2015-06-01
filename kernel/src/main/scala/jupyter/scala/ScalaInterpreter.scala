@@ -117,7 +117,7 @@ object ScalaInterpreter {
             startCompilerClassLoader: => ClassLoader = startCompilerClassLoader,
             pprintConfig: pprint.Config = pprint.Config.Colors.PPrintConfig.copy(lines = 15),
             colors: ColorSet = ColorSet.Default,
-            filterUnitResults: Boolean = true): interpreter.Interpreter = {
+            filterUnitResults: Boolean = true): interpreter.Interpreter { def stop(): Unit } = {
 
     var currentPublish = Option.empty[Publish[Evidence]]
     var currentMessage = Option.empty[ParsedMessage[_]]
@@ -149,14 +149,10 @@ object ScalaInterpreter {
       intp
     }
 
-    /** Filters out Unit results */
-    def resFilter(s: String) =
-    // ANSI color stripping cut-n-pasted from Ammonite JLineFrontend
-      if (filterUnitResults) !s.replaceAll("\u001B\\[[;\\d]*m", "").endsWith(": Unit = ()")
-      else true
-
 
     new interpreter.Interpreter with InterpreterDefaults {
+
+      def stop() = underlying.stop()
 
       override def initialized = initialized0
       override def init() = underlying
